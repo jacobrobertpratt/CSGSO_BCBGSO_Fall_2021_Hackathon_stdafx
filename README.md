@@ -4,5 +4,3 @@
 _**An RPG where you are immersed as a hacker**_
 _into a hackathon and must create the best project._
 _Failing to make the best project will result in your peril!_
-
-~Testing~
