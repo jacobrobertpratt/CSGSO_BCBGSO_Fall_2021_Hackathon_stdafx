@@ -1,4 +1,5 @@
 # CSGSO_BCBGSO_Fall_2021_Hackathon_stdafx
+## STDAFX - _Corbin Graham, Sophomore_
 ### HackerS
 **An RPG**
 _where you are immersed as a hacker into a hackathon and must create the best project._
