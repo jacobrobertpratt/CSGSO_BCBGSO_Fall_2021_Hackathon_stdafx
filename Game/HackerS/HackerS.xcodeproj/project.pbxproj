@@ -27,7 +27,7 @@
 		9DD0A95E273F1A310079DE8E /* HackerS */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = HackerS; sourceTree = BUILT_PRODUCTS_DIR; };
 		9DD0A961273F1A310079DE8E /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		9DD0A968273F1B7F0079DE8E /* GameEngine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GameEngine.cpp; sourceTree = "<group>"; };
-		9DD0A969273F1B7F0079DE8E /* GameEngine.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GameEngine.hpp; sourceTree = "<group>"; };
+		9DD0A96B273F222A0079DE8E /* GameEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameEngine.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,7 +62,7 @@
 			children = (
 				9DD0A961273F1A310079DE8E /* main.cpp */,
 				9DD0A968273F1B7F0079DE8E /* GameEngine.cpp */,
-				9DD0A969273F1B7F0079DE8E /* GameEngine.hpp */,
+				9DD0A96B273F222A0079DE8E /* GameEngine.h */,
 			);
 			path = HackerS;
 			sourceTree = "<group>";
