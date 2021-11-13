@@ -3,13 +3,15 @@ package HackerS;
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class Hackers {
 
 	private static int HP = 10;
 	private String errorMessage = "";
-	private Random random;
+	private static Random random;
 	private Scanner scnr;
 	private Player player;
 	private Arena arena;
@@ -17,14 +19,17 @@ public class Hackers {
 	private static class Arena
 	{
 		ArenaState state;
+		ArrayList<ArenaState> arenas = new ArrayList<ArenaState>();
 		ArrayList<Enemy> enemies = new ArrayList<Enemy>();
-		private int index;
+		private int arenaIndex;
+		private int enemyIndex;
 		
 		Arena()
 		{
-			this.state = ArenaState.HACKATHON;
+			this.state = ArenaState.NONE;
 			generateArena();
-			index = 0;
+			enemyIndex = 0;
+			arenaIndex = 0;
 		}
 		Arena(ArenaState arena)
 		{
@@ -36,18 +41,23 @@ public class Hackers {
 		{
 			for(int i = 0; i < state.getOpponents(); i++)
 			{
-				enemies.add(new Enemy());
+				enemies.add(new Enemy(Enemy.EnemyInfo.valueOf(random.nextInt(Enemy.EnemyInfo.values().length)), Enemy.EnemyWeapon.valueOf(random.nextInt(Enemy.EnemyWeapon.values().length))));
 			}
 		}
 		
-		private int getIndex()
+		private int getArenaIndex()
 		{
-			return index + 1;
+			return arenaIndex + 1;
+		}
+		
+		private int getEnemyIndex()
+		{
+			return enemyIndex + 1;
 		}
 		
 		private Enemy getEnemy()
 		{
-			return enemies.get(index);
+			return enemies.get(enemyIndex);
 		}
 		
 		private String printEnemy()
@@ -57,18 +67,38 @@ public class Hackers {
 		
 		private enum ArenaState
 		{
-			HACKATHON(1000, 10, "Hackathon");
+			NONE(0, 0, 0, "No Arena Selected"),
+			HACKATHON(1, 1000, 10, "Hackathon");
 			
+			private final int value;
 			private final int points;
 			private final int opponents;
 			private final String name;
 			
-			ArenaState(int points, int opponents, String name) {
+			private static Map map = new HashMap<>();
+			
+			ArenaState(int value, int points, int opponents, String name) {
+				this.value = value;
 				this.points = points;
 				this.opponents = opponents;
 				this.name = name;
 			}
 			
+			static {
+				for(ArenaState arenaState : ArenaState.values()) {
+					map.put(arenaState.value, arenaState);
+				}
+			}
+			
+			public static ArenaState valueOf(int key)
+			{
+				return (ArenaState) map.get(key);
+			}
+			
+			public int getRank()
+			{
+				return value;
+			}
 			public int getPoints()
 			{
 				return points;
@@ -89,21 +119,22 @@ public class Hackers {
 	
 	private static class Enemy
 	{
-		EnemyInfo name;
+		EnemyInfo state;
 		EnemyWeapon weapon;
 		private int health;
 		
 		public Enemy()
 		{
-			name = EnemyInfo.STAN;
+			state = EnemyInfo.STAN;
 			weapon = EnemyWeapon.TEXTENTRY;
 			this.health = HP;
 		}
 		
 		public Enemy(EnemyInfo name, EnemyWeapon weapon)
 		{
-			this.name = name;
+			this.state = name;
 			this.weapon = weapon;
+			this.health = HP;
 		}
 		
 		public int getHealth()
@@ -140,22 +171,37 @@ public class Hackers {
 		
 		private String printEnemy()
 		{
-			return (name.getName() + "\tHealth: [" + this.printHealth() + "]\tChallenge: " + this.weapon.getName());
+			return (state.getName() + "\tHealth: [" + this.printHealth() + "]\tChallenge: " + this.weapon.getName());
 		}
 		
 		
 		private enum EnemyWeapon
 		{
-			TEXTENTRY(1, "Text Entry"),
-			TERMINALAPP(2, "Terminal Application"),
-			POPQUIZ(3, "Pop Quiz");
+			TEXTENTRY(0, 1, "Text Entry"),
+			TERMINALAPP(1, 2, "Terminal Application"),
+			POPQUIZ(2, 3, "Pop Quiz");
 			
+			private final int value;
 			private final int power;
 			private final String name;
 			
-			EnemyWeapon(int power, String name) {
+			private static Map map = new HashMap<>();
+			
+			EnemyWeapon(int value, int power, String name) {
+				this.value = value;
 				this.power = power;
 				this.name = name;
+			}
+			
+			static {
+				for(EnemyWeapon enemyWeapon : EnemyWeapon.values()) {
+					map.put(enemyWeapon.value, enemyWeapon);
+				}
+			}
+			
+			public static EnemyWeapon valueOf(int key)
+			{
+				return (EnemyWeapon) map.get(key);
 			}
 			
 			public int getPower()
@@ -171,11 +217,13 @@ public class Hackers {
 		
 		private enum EnemyInfo
 		{
-			STAN(1, "Stan", "Stan is a grad student.  He was forced to teach a course.  He makes you create a text entry coding project.  No IDE allowed.");
+			STAN(0, "Stan", "Stan is a grad student.  He was forced to teach a course.  He makes you create a text entry coding project.  No IDE allowed.");
 			
 			private final int value;
 			private final String name;
 			private final String story;
+			
+			private static Map map = new HashMap<>();
 			
 			EnemyInfo(int value, String name, String story){
 				this.value = value;
@@ -183,9 +231,15 @@ public class Hackers {
 				this.story = story;
 			}
 			
-			public int getValue()
+			static {
+				for(EnemyInfo enemyInfo : EnemyInfo.values()) {
+					map.put(enemyInfo.value, enemyInfo);
+				}
+			}
+			
+			public static EnemyInfo valueOf(int key)
 			{
-				return value;
+				return (EnemyInfo) map.get(key);
 			}
 			
 			public String getName()
@@ -217,6 +271,11 @@ public class Hackers {
 			playerArmor = PlayerArmor.FACEMASK;
 		}
 		
+		public boolean doDamage(Enemy enemy)
+		{
+			return enemy.damage(playerWeapon.getPower());
+		}
+		
 		public String getName()
 		{
 			return name;
@@ -245,16 +304,18 @@ public class Hackers {
 		
 		private enum PlayerWeapon
 		{
-			MOUSE(1, "Mouse"),
-			KEYBOARD(2, "Keyboard"),
-			TOUCHSCREEN(3, "Touch-Screen");
+			MOUSE(1, "Mouse", "Click"),
+			KEYBOARD(2, "Keyboard", "Press a key or something"),
+			TOUCHSCREEN(3, "Touch-Screen", "Touch the screen!");
 			
 			private final int power;
 			private final String name;
+			private final String description;
 			
-			PlayerWeapon(int power, String name) {
+			PlayerWeapon(int power, String name, String description) {
 				this.power = power;
 				this.name = name;
+				this.description = description;
 			}
 			
 			public int getPower()
@@ -265,6 +326,10 @@ public class Hackers {
 			public String getName()
 			{
 				return name;
+			}
+			
+			public String getAttack() {
+				return description;
 			}
 		}
 		
@@ -309,7 +374,7 @@ public class Hackers {
 	public Hackers()
 	{
 		scnr = new Scanner(System.in);
-		
+		random = new Random();
 		startGame();
 	}
 	
@@ -355,6 +420,8 @@ public class Hackers {
 			switch(getInput().charAt(0))
 			{
 			case '1':
+				arena.arenaIndex++;
+				arena = new Arena(arena.state.valueOf(arena.arenaIndex));
 				mission();
 				break;
 			case '2':
@@ -399,9 +466,29 @@ public class Hackers {
 	
 	private void fight()
 	{
+		System.out.println(arena.getEnemy().getHealth());
 		printGameState();
+		printMission();
+		printStory();
 		printFight();
-		System.out.printf("A", args)printActions(Page.FIGHT);
+		printActions(Page.FIGHT);
+		
+		try {
+			switch(getInput().charAt(0))
+			{
+			case '1':
+				if(!player.doDamage(arena.getEnemy())) win();
+				break;
+			case '2':
+				evade();
+				break;
+			case '3':
+				run();
+			}
+		} catch(Error e) {
+			errorMessage = ("Command not understood. Try again.%n");
+		}
+		fight();
 	}
 	
 	private void evade()
@@ -412,6 +499,12 @@ public class Hackers {
 	private void run()
 	{
 		
+	}
+	
+	private void win()
+	{
+		System.out.printf("You beat %s!%nContinue:", arena.getEnemy().state.getName());
+		arena.enemyIndex++;
 	}
 	
 	private void reset(String playerName)
@@ -443,11 +536,11 @@ public class Hackers {
 		switch(page)
 		{
 		case HOME:
-			return "(1) Start Arena\t(2) Shop";
+			return "(1) Start Next Arena\t(2) Shop";
 		case MISSION:
 			return "(1) Fight\t(2) Evade\t(3) Run for your life!";
 		case FIGHT:
-			return "Uhh";
+			return "(1) " + player.playerWeapon.getAttack() + "\t(2) Evade\t(3) Run";
 		default:
 			return "No actions allowed.";
 		}
@@ -465,12 +558,12 @@ public class Hackers {
 	
 	private void printStory()
 	{
-		System.out.printf("Story\t\t%s%n\t\tWhat do you do?%n%n%n%n", arena.getEnemy().name.getStory());
+		System.out.printf("Story\t\t%s%n\t\tWhat do you do?%n%n%n", arena.getEnemy().state.getStory());
 	}
 	
 	private void printMission()
 	{
-		System.out.printf("Enemy %d/%d\t%s%n%n", arena.getIndex(), arena.enemies.size(), arena.printEnemy());
+		System.out.printf("Enemy %d/%d\t%s%n%n", arena.getEnemyIndex(), arena.enemies.size(), arena.printEnemy());
 	}
 	
 	private void printFight()
