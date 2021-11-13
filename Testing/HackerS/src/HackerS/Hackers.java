@@ -41,7 +41,11 @@ public class Hackers {
 		{
 			for(int i = 0; i < state.getOpponents(); i++)
 			{
+				//for(int j = 0; j < )
+				
+				
 				enemies.add(new Enemy(Enemy.EnemyInfo.valueOf(random.nextInt(Enemy.EnemyInfo.values().length)), Enemy.EnemyWeapon.valueOf(random.nextInt(Enemy.EnemyWeapon.values().length))));
+				System.out.println("Info: " + enemies.get(i).numi + " Weapons: " + enemies.get(i).numw);
 			}
 		}
 		
@@ -123,6 +127,9 @@ public class Hackers {
 		EnemyWeapon weapon;
 		private int health;
 		
+		private static int numw;
+		private static int numi;
+		
 		public Enemy()
 		{
 			state = EnemyInfo.STAN;
@@ -191,11 +198,13 @@ public class Hackers {
 				this.value = value;
 				this.power = power;
 				this.name = name;
+				numw = 0;
 			}
 			
 			static {
 				for(EnemyWeapon enemyWeapon : EnemyWeapon.values()) {
 					map.put(enemyWeapon.value, enemyWeapon);
+					numw++;
 				}
 			}
 			
@@ -229,11 +238,13 @@ public class Hackers {
 				this.value = value;
 				this.name = name;
 				this.story = story;
+				numi = 0;
 			}
 			
 			static {
 				for(EnemyInfo enemyInfo : EnemyInfo.values()) {
 					map.put(enemyInfo.value, enemyInfo);
+					numi++;
 				}
 			}
 			
@@ -428,7 +439,7 @@ public class Hackers {
 				shop();
 				break;
 			}
-		} catch(Error e) {
+		} catch(Exception e) {
 			errorMessage = ("Command not understood. Try again.%n");
 			home();
 		}
@@ -458,15 +469,14 @@ public class Hackers {
 			case '3':
 				run();
 			}
-		} catch(Error e) {
-			errorMessage = ("Command not understood. Try again.%n");
+		} catch(Exception e) {
+			errorMessage = ("Command not understood. Try again.\n");
 			mission();
 		}
 	}
 	
 	private void fight()
 	{
-		System.out.println(arena.getEnemy().getHealth());
 		printGameState();
 		printMission();
 		printStory();
@@ -485,8 +495,8 @@ public class Hackers {
 			case '3':
 				run();
 			}
-		} catch(Error e) {
-			errorMessage = ("Command not understood. Try again.%n");
+		} catch(Exception e) {
+			errorMessage = ("Command not understood. Try again.\n");
 		}
 		fight();
 	}
