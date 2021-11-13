@@ -3,6 +3,7 @@ package HackerS;
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -20,7 +21,7 @@ public class Hackers {
 	{
 		ArenaState state;
 		ArrayList<ArenaState> arenas = new ArrayList<ArenaState>();
-		ArrayList<Enemy> enemies = new ArrayList<Enemy>();
+		Enemy[] enemies;
 		private int arenaIndex;
 		private int enemyIndex;
 		
@@ -30,10 +31,14 @@ public class Hackers {
 			generateArena();
 			enemyIndex = 0;
 			arenaIndex = 0;
+			enemies = new Enemy[state.getOpponents() + 1];
 		}
 		Arena(ArenaState arena)
 		{
 			this.state = arena;
+			enemyIndex = 0;
+			arenaIndex = 0;
+			enemies = new Enemy[state.getOpponents() + 1];
 			generateArena();
 		}
 		
@@ -42,11 +47,41 @@ public class Hackers {
 			for(int i = 0; i < state.getOpponents(); i++)
 			{
 				//for(int j = 0; j < )
+				/*
+				 * Add new loop
+				 * 
+				 * algorithm for sorting the enemies by level
+				 * 
+				 * numEnemies
+				 * numWeapons
+				 * numRequired
+				 * 
+				 * numEnemies randomize
+				 * 
+				 * numWeapons randomize then sort
+				 * 
+				 */
 				
 				
-				enemies.add(new Enemy(Enemy.EnemyInfo.valueOf(random.nextInt(Enemy.EnemyInfo.values().length)), Enemy.EnemyWeapon.valueOf(random.nextInt(Enemy.EnemyWeapon.values().length))));
-				System.out.println("Info: " + enemies.get(i).numi + " Weapons: " + enemies.get(i).numw);
+				enemies[i] = (new Enemy(Enemy.EnemyInfo.valueOf(random.nextInt(Enemy.EnemyInfo.values().length)), Enemy.EnemyWeapon.valueOf(random.nextInt(Enemy.EnemyWeapon.values().length))));
+				System.out.println("Info: " + enemies[i].state.values().length + " Weapons: " + enemies[i].weapon.values().length);
 			}
+			
+			for (int i = 0; i < state.getOpponents() -1; i++){
+
+		        for (int j = 0; j < state.getOpponents() -1; j++){
+
+		            if (enemies[j].weapon.getValue() > enemies[j+1].weapon.getValue()){
+
+		                Enemy temp = enemies[j];
+		                enemies[j] = enemies[j + 1];
+		                enemies[j + 1] = temp;
+		            }
+		            
+		            System.out.println(enemies[j].state.getValue());
+		        }    
+		        System.out.println("err");
+		    }
 		}
 		
 		private int getArenaIndex()
@@ -61,7 +96,8 @@ public class Hackers {
 		
 		private Enemy getEnemy()
 		{
-			return enemies.get(enemyIndex);
+			System.out.println(enemyIndex);
+			return enemies[enemyIndex];
 		}
 		
 		private String printEnemy()
@@ -72,7 +108,8 @@ public class Hackers {
 		private enum ArenaState
 		{
 			NONE(0, 0, 0, "No Arena Selected"),
-			HACKATHON(1, 1000, 10, "Hackathon");
+			HACKATHON(1, 1000, 2, "Hackathon"),
+			INTERVIEW(2, 1000, 2, "Coding Interview");
 			
 			private final int value;
 			private final int points;
@@ -126,9 +163,6 @@ public class Hackers {
 		EnemyInfo state;
 		EnemyWeapon weapon;
 		private int health;
-		
-		private static int numw;
-		private static int numi;
 		
 		public Enemy()
 		{
@@ -198,19 +232,22 @@ public class Hackers {
 				this.value = value;
 				this.power = power;
 				this.name = name;
-				numw = 0;
 			}
 			
 			static {
 				for(EnemyWeapon enemyWeapon : EnemyWeapon.values()) {
 					map.put(enemyWeapon.value, enemyWeapon);
-					numw++;
 				}
 			}
 			
 			public static EnemyWeapon valueOf(int key)
 			{
 				return (EnemyWeapon) map.get(key);
+			}
+			
+			public int getValue()
+			{
+				return value;
 			}
 			
 			public int getPower()
@@ -238,19 +275,22 @@ public class Hackers {
 				this.value = value;
 				this.name = name;
 				this.story = story;
-				numi = 0;
 			}
 			
 			static {
 				for(EnemyInfo enemyInfo : EnemyInfo.values()) {
 					map.put(enemyInfo.value, enemyInfo);
-					numi++;
 				}
 			}
 			
 			public static EnemyInfo valueOf(int key)
 			{
 				return (EnemyInfo) map.get(key);
+			}
+			
+			public int getValue()
+			{
+				return value;
 			}
 			
 			public String getName()
@@ -378,7 +418,9 @@ public class Hackers {
 		HOME,
 		SHOP,
 		MISSION,
-		FIGHT
+		FIGHT,
+		WIN,
+		LOSE
 	}
 	
 	
@@ -391,26 +433,6 @@ public class Hackers {
 	
 	public static void main(String[] args)
 	{
-		/*
-	     Game:
-	     New Journey
-	     Introduction
-	     Setup - >
-	        Show Health Bar
-	        Show Name
-	        Show Stage / Status
-	     
-	     Interaction - >
-	        Ask for decisions and interpret to number or start by asking number
-	        Roll random for what is going to happen from decision
-	        Change decisions
-	        
-	     
-	        
-	     
-	     GameEngine:
-	        
-	     */
 		Hackers hack = new Hackers();
 	}
 	
@@ -427,7 +449,7 @@ public class Hackers {
 	{
 		printGameState();
 		printHome();
-		try {
+		
 			switch(getInput().charAt(0))
 			{
 			case '1':
@@ -439,10 +461,7 @@ public class Hackers {
 				shop();
 				break;
 			}
-		} catch(Exception e) {
-			errorMessage = ("Command not understood. Try again.%n");
-			home();
-		}
+		
 	}
 	
 	private void shop()
@@ -478,22 +497,32 @@ public class Hackers {
 	private void fight()
 	{
 		printGameState();
-		printMission();
-		printStory();
 		printFight();
+		printStory();
 		printActions(Page.FIGHT);
 		
 		try {
 			switch(getInput().charAt(0))
 			{
 			case '1':
-				if(!player.doDamage(arena.getEnemy())) win();
+				// Swing First
+				boolean doDamage = player.doDamage(arena.getEnemy());
+				if(!doDamage && arena.getEnemyIndex() >= arena.state.getOpponents())
+					{
+					arena.enemyIndex--;
+					win();
+					}
+				else if (!doDamage) arena.enemyIndex++;
+				// Swing back
+				
+				
 				break;
 			case '2':
 				evade();
 				break;
 			case '3':
 				run();
+				break;
 			}
 		} catch(Exception e) {
 			errorMessage = ("Command not understood. Try again.\n");
@@ -513,8 +542,49 @@ public class Hackers {
 	
 	private void win()
 	{
-		System.out.printf("You beat %s!%nContinue:", arena.getEnemy().state.getName());
-		arena.enemyIndex++;
+		System.out.printf("%s%n%nYou beat %s!%n%nTry again?%n%n%n%n", printSpace(), arena.getEnemy().state.getName());
+		// arena.enemyIndex = 0;
+		arena.arenaIndex++;
+		printActions(Page.WIN);
+		try {
+			switch(getInput().charAt(0))
+			{
+			case '1':
+				home();
+				break;
+			case '2':
+				evade();
+				break;
+			case '3':
+				run();
+			}
+		} catch(Exception e) {
+			errorMessage = ("Command not understood. Try again.\n");
+			win();
+		}
+		
+	}
+	
+	private void lose()
+	{
+		System.out.printf("%s%n%nYou lost :(%nTry again?%n%n%n%n", printSpace());
+		printActions(Page.LOSE);
+		try {
+			switch(getInput().charAt(0))
+			{
+			case '1':
+				fight();
+				break;
+			case '2':
+				evade();
+				break;
+			case '3':
+				run();
+			}
+		} catch(Exception e) {
+			errorMessage = ("Command not understood. Try again.\n");
+			win();
+		}
 	}
 	
 	private void reset(String playerName)
@@ -568,21 +638,26 @@ public class Hackers {
 	
 	private void printStory()
 	{
-		System.out.printf("Story\t\t%s%n\t\tWhat do you do?%n%n%n", arena.getEnemy().state.getStory());
+		System.out.printf("Story\t\t%s%n\t\tWhat do you do?%n%n%n%n", arena.getEnemy().state.getStory());
 	}
 	
 	private void printMission()
 	{
-		System.out.printf("Enemy %d/%d\t%s%n%n", arena.getEnemyIndex(), arena.enemies.size(), arena.printEnemy());
+		System.out.printf("Mission\t\tYou Encounter a new Enemy!%n%n");
 	}
 	
 	private void printFight()
 	{
-		
+		System.out.printf("Challenge %d/%d\t%s%n%n", arena.getEnemyIndex(), arena.state.getOpponents(), arena.printEnemy());
 	}
 	
-	void printGameState()
+	private void printGameState()
 	{
-		System.out.printf("%n%n%n%n%n%n%n%n%n%n%n%nHackerS\t\t%s\tHealth: [%s]\tWeapon: %s\tArmor: %s\tArena: %s%n%n", player.getName(), player.printHealth(), player.playerWeapon.getName(), player.playerArmor.getName(), arena.state.getName());
+		System.out.printf("%sHackerS\t\t%s\tHealth: [%s]\tWeapon: %s\tArmor: %s\tArena: %s%n%n", printSpace(), player.getName(), player.printHealth(), player.playerWeapon.getName(), player.playerArmor.getName(), arena.state.getName());
+	}
+	
+	private String printSpace()
+	{
+		return "\n\n\n\n\n\n\n\n\n\n\n\n";
 	}
 }
