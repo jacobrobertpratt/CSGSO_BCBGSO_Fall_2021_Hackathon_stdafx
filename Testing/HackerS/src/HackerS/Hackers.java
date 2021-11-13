@@ -3,23 +3,28 @@ package HackerS;
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Random;
 
 public class Hackers {
 
 	private static int HP = 10;
-	Scanner scnr;
-	Player player;
-	Arena arena;
+	private String errorMessage = "";
+	private Random random;
+	private Scanner scnr;
+	private Player player;
+	private Arena arena;
 	
 	private static class Arena
 	{
 		ArenaState state;
 		ArrayList<Enemy> enemies = new ArrayList<Enemy>();
+		private int index;
 		
 		Arena()
 		{
 			this.state = ArenaState.HACKATHON;
 			generateArena();
+			index = 0;
 		}
 		Arena(ArenaState arena)
 		{
@@ -33,6 +38,21 @@ public class Hackers {
 			{
 				enemies.add(new Enemy());
 			}
+		}
+		
+		private int getIndex()
+		{
+			return index + 1;
+		}
+		
+		private Enemy getEnemy()
+		{
+			return enemies.get(index);
+		}
+		
+		private String printEnemy()
+		{
+			return getEnemy().printEnemy();
 		}
 		
 		private enum ArenaState
@@ -69,18 +89,18 @@ public class Hackers {
 	
 	private static class Enemy
 	{
-		EnemyName name;
+		EnemyInfo name;
 		EnemyWeapon weapon;
 		private int health;
 		
 		public Enemy()
 		{
-			name = EnemyName.STAN;
+			name = EnemyInfo.STAN;
 			weapon = EnemyWeapon.TEXTENTRY;
 			this.health = HP;
 		}
 		
-		public Enemy(EnemyName name, EnemyWeapon weapon)
+		public Enemy(EnemyInfo name, EnemyWeapon weapon)
 		{
 			this.name = name;
 			this.weapon = weapon;
@@ -90,6 +110,39 @@ public class Hackers {
 		{
 			return health;
 		}
+		
+		public String printHealth()
+		{
+			String h = "";
+			
+			int[] t = new int[HP];
+			
+			for(int i = 0; i < health; i++) {
+				h += "*";
+			}
+			for(int i = health; i < HP; i++) {
+				h += "-";
+			}
+			
+			return h;
+		}
+		
+		public boolean damage(int damage)
+		{
+			//Return false if not possible (dead)
+			if(damage >= health) return false;
+			//Return true if damage is possible (and do damage)
+			else {
+				health -= damage;
+				return true;
+			}
+		}
+		
+		private String printEnemy()
+		{
+			return (name.getName() + "\tHealth: [" + this.printHealth() + "]\tChallenge: " + this.weapon.getName());
+		}
+		
 		
 		private enum EnemyWeapon
 		{
@@ -116,15 +169,18 @@ public class Hackers {
 			}
 		}
 		
-		private enum EnemyName
+		private enum EnemyInfo
 		{
-			STAN(1, "Stan");
+			STAN(1, "Stan", "Stan is a grad student.  He was forced to teach a course.  He makes you create a text entry coding project.  No IDE allowed.");
 			
 			private final int value;
 			private final String name;
-			EnemyName(int value, String name){
+			private final String story;
+			
+			EnemyInfo(int value, String name, String story){
 				this.value = value;
 				this.name = name;
+				this.story = story;
 			}
 			
 			public int getValue()
@@ -135,6 +191,11 @@ public class Hackers {
 			public String getName()
 			{
 				return name;
+			}
+			
+			public String getStory()
+			{
+				return story;
 			}
 		}
 		
@@ -236,6 +297,14 @@ public class Hackers {
 		
 	}
 	
+	private enum Page
+	{
+		HOME,
+		SHOP,
+		MISSION,
+		FIGHT
+	}
+	
 	
 	public Hackers()
 	{
@@ -273,8 +342,8 @@ public class Hackers {
 	{
 		System.out.printf("Welcome to THE HACKATHON!%n");
 		
-		System.out.printf("Enter your name: ");
-		reset(scnr.nextLine());
+		System.out.printf("Enter your name.%n");
+		reset(getInput());
 		home();
 	}
 	
@@ -282,21 +351,67 @@ public class Hackers {
 	{
 		printGameState();
 		printHome();
+		try {
+			switch(getInput().charAt(0))
+			{
+			case '1':
+				mission();
+				break;
+			case '2':
+				shop();
+				break;
+			}
+		} catch(Error e) {
+			errorMessage = ("Command not understood. Try again.%n");
+			home();
+		}
 	}
 	
-	private void printHome()
+	private void shop()
 	{
-		System.out.printf("Home");
+		printGameState();
 	}
 	
 	private void mission()
 	{
 		printGameState();
+		printMission();
+		printStory();
+		printActions(Page.MISSION);
+		
+		try {
+			switch(getInput().charAt(0))
+			{
+			case '1':
+				fight();
+				break;
+			case '2':
+				evade();
+				break;
+			case '3':
+				run();
+			}
+		} catch(Error e) {
+			errorMessage = ("Command not understood. Try again.%n");
+			mission();
+		}
 	}
 	
 	private void fight()
 	{
 		printGameState();
+		printFight();
+		System.out.printf("A", args)printActions(Page.FIGHT);
+	}
+	
+	private void evade()
+	{
+		
+	}
+	
+	private void run()
+	{
+		
 	}
 	
 	private void reset(String playerName)
@@ -316,10 +431,55 @@ public class Hackers {
 		arena = new Arena();
 	}
 	
+	private String getInput()
+	{
+		System.out.printf("%sEnter Command: ", errorMessage);
+		errorMessage = "";
+		return scnr.nextLine();
+	}
+	
+	private String getAction(Page page)
+	{
+		switch(page)
+		{
+		case HOME:
+			return "(1) Start Arena\t(2) Shop";
+		case MISSION:
+			return "(1) Fight\t(2) Evade\t(3) Run for your life!";
+		case FIGHT:
+			return "Uhh";
+		default:
+			return "No actions allowed.";
+		}
+	}
+	
+	private void printActions(Page page)
+	{
+		System.out.printf("Actions\t\t%s%n", getAction(page));
+	}
+	
+	private void printHome()
+	{
+		System.out.printf("Home\t\t%s%n%n%n%n%n%n%n%n", getAction(Page.HOME));
+	}
+	
+	private void printStory()
+	{
+		System.out.printf("Story\t\t%s%n\t\tWhat do you do?%n%n%n%n", arena.getEnemy().name.getStory());
+	}
+	
+	private void printMission()
+	{
+		System.out.printf("Enemy %d/%d\t%s%n%n", arena.getIndex(), arena.enemies.size(), arena.printEnemy());
+	}
+	
+	private void printFight()
+	{
+		
+	}
 	
 	void printGameState()
 	{
-		player.health -= 3;
-		System.out.printf("HackerS\t%s\tHealth: [%s]\tWeapon: %s\tArmor: %s\tArena: %s%n%n", player.getName(), player.printHealth(), player.playerWeapon.getName(), player.playerArmor.getName(), arena.state.getName());
+		System.out.printf("%n%n%n%n%n%n%n%n%n%n%n%nHackerS\t\t%s\tHealth: [%s]\tWeapon: %s\tArmor: %s\tArena: %s%n%n", player.getName(), player.printHealth(), player.playerWeapon.getName(), player.playerArmor.getName(), arena.state.getName());
 	}
 }
