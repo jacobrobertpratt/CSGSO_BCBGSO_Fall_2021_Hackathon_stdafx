@@ -1,98 +1,241 @@
 package HackerS;
 
 import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class Hackers {
 
-	
+	private static int HP = 10;
 	Scanner scnr;
-	String playerName;
-	PlayerWeapon playerWeapon;
-	EnemyWeapon enemyWeapon;
+	Player player;
+	Arena arena;
 	
-	static int HP = 10;
-	int playerHealth;
-	
-	
-	enum PlayerWeapon
+	private static class Arena
 	{
-		MOUSE(1, "Mouse"),
-		KEYBOARD(2, "Keyboard"),
-		TOUCHSCREEN(3, "Touch-Screen");
+		ArenaState state;
+		ArrayList<Enemy> enemies = new ArrayList<Enemy>();
 		
-		private final int power;
-		private final String name;
-		
-		PlayerWeapon(int power, String name) {
-			this.power = power;
-			this.name = name;
+		Arena()
+		{
+			this.state = ArenaState.HACKATHON;
+			generateArena();
+		}
+		Arena(ArenaState arena)
+		{
+			this.state = arena;
+			generateArena();
 		}
 		
-		public int getPower()
+		private void generateArena()
 		{
-			return power;
+			for(int i = 0; i < state.getOpponents(); i++)
+			{
+				enemies.add(new Enemy());
+			}
+		}
+		
+		private enum ArenaState
+		{
+			HACKATHON(1000, 10, "Hackathon");
+			
+			private final int points;
+			private final int opponents;
+			private final String name;
+			
+			ArenaState(int points, int opponents, String name) {
+				this.points = points;
+				this.opponents = opponents;
+				this.name = name;
+			}
+			
+			public int getPoints()
+			{
+				return points;
+			}
+			
+			public int getOpponents()
+			{
+				return opponents;
+			}
+			
+			public String getName()
+			{
+				return name;
+			}
+		}
+	}
+	
+	
+	private static class Enemy
+	{
+		EnemyName name;
+		EnemyWeapon weapon;
+		private int health;
+		
+		public Enemy()
+		{
+			name = EnemyName.STAN;
+			weapon = EnemyWeapon.TEXTENTRY;
+			this.health = HP;
+		}
+		
+		public Enemy(EnemyName name, EnemyWeapon weapon)
+		{
+			this.name = name;
+			this.weapon = weapon;
+		}
+		
+		public int getHealth()
+		{
+			return health;
+		}
+		
+		private enum EnemyWeapon
+		{
+			TEXTENTRY(1, "Text Entry"),
+			TERMINALAPP(2, "Terminal Application"),
+			POPQUIZ(3, "Pop Quiz");
+			
+			private final int power;
+			private final String name;
+			
+			EnemyWeapon(int power, String name) {
+				this.power = power;
+				this.name = name;
+			}
+			
+			public int getPower()
+			{
+				return power;
+			}
+			
+			public String getName()
+			{
+				return name;
+			}
+		}
+		
+		private enum EnemyName
+		{
+			STAN(1, "Stan");
+			
+			private final int value;
+			private final String name;
+			EnemyName(int value, String name){
+				this.value = value;
+				this.name = name;
+			}
+			
+			public int getValue()
+			{
+				return value;
+			}
+			
+			public String getName()
+			{
+				return name;
+			}
+		}
+		
+	}
+	
+	private static class Player
+	{
+		public PlayerWeapon playerWeapon;
+		public PlayerArmor playerArmor;
+		
+		private static String name;
+		private int health;
+		
+		public Player(String playerName)
+		{
+			this.name = playerName;
+			this.health = HP;
+			playerWeapon = PlayerWeapon.MOUSE;
+			playerArmor = PlayerArmor.FACEMASK;
 		}
 		
 		public String getName()
 		{
 			return name;
 		}
+		
+		public int getHealth()
+		{
+			return health;
+		}
+		
+		public String printHealth()
+		{
+			String h = "";
+			
+			int[] t = new int[HP];
+			
+			for(int i = 0; i < health; i++) {
+				h += "*";
+			}
+			for(int i = health; i < HP; i++) {
+				h += "-";
+			}
+			
+			return h;
+		}
+		
+		private enum PlayerWeapon
+		{
+			MOUSE(1, "Mouse"),
+			KEYBOARD(2, "Keyboard"),
+			TOUCHSCREEN(3, "Touch-Screen");
+			
+			private final int power;
+			private final String name;
+			
+			PlayerWeapon(int power, String name) {
+				this.power = power;
+				this.name = name;
+			}
+			
+			public int getPower()
+			{
+				return power;
+			}
+			
+			public String getName()
+			{
+				return name;
+			}
+		}
+		
+		private enum PlayerArmor
+		{
+			FACEMASK(1, "Face Mask"),
+			HOODIE(2, "Hoodie"),
+			WINTERJACKET(3, "Winter Jacket"),
+			CARBOARDBOX(4, "Cardboard Box");
+			
+			private final int power;
+			private final String name;
+			
+			PlayerArmor(int power, String name) {
+				this.power = power;
+				this.name = name;
+			}
+			
+			public int getPower()
+			{
+				return power;
+			}
+			
+			public String getName()
+			{
+				return name;
+			}
+		}
+		
+		
 	}
 	
-	enum EnemyWeapon
-	{
-		TEXTENTRY(1, "Text Entry"),
-		TERMINALAPP(2, "Terminal Application"),
-		POPQUIZ(3, "Pop Quiz");
-		
-		private final int power;
-		private final String name;
-		
-		EnemyWeapon(int power, String name) {
-			this.power = power;
-			this.name = name;
-		}
-		
-		public int getPower()
-		{
-			return power;
-		}
-		
-		public String getName()
-		{
-			return name;
-		}
-	}
-	
-	enum PlayerMap
-	{
-		HACKATHON(1000, 10, "Hackathon");
-		
-		private final int points;
-		private final int opponents;
-		private final String name;
-		
-		PlayerMap(int points, int opponents, String name) {
-			this.points = points;
-			this.opponents = opponents;
-			this.name = name;
-		}
-		
-		public int getPoints()
-		{
-			return points;
-		}
-		
-		public int getOpponents()
-		{
-			return opponents;
-		}
-		
-		public String getName()
-		{
-			return name;
-		}
-	}
 	
 	public Hackers()
 	{
@@ -131,35 +274,52 @@ public class Hackers {
 		System.out.printf("Welcome to THE HACKATHON!%n");
 		
 		System.out.printf("Enter your name: ");
-		playerName = scnr.nextLine(); 
-		
-		System.out.println(PlayerWeapon.TOUCHSCREEN.getName());
-		
+		reset(scnr.nextLine());
+		home();
 	}
 	
 	private void home()
 	{
+		printGameState();
+		printHome();
+	}
+	
+	private void printHome()
+	{
+		System.out.printf("Home");
+	}
+	
+	private void mission()
+	{
+		printGameState();
+	}
+	
+	private void fight()
+	{
+		printGameState();
+	}
+	
+	private void reset(String playerName)
+	{
+		resetPlayer(playerName);
+		resetGame();
+	}
+	
+	private void resetPlayer(String playerName)
+	{
+		player = new Player(playerName);
 		
 	}
 	
-	String getHealth()
+	private void resetGame()
 	{
-		String h = "";
-		
-		int[] t = new int[HP];
-		
-		for(int i = 0; i < playerHealth; i++) {
-			h += "*";
-		}
-		for(int i = playerHealth; i < HP; i++) {
-			h += "-";
-		}
-		
-		return h;
+		arena = new Arena();
 	}
+	
 	
 	void printGameState()
 	{
-		System.out.printf("HackerS%t%s%tHealth: [%s]%tWeapon: %s%n%n", playerName, getHealth(), playerWeapon.getName());
+		player.health -= 3;
+		System.out.printf("HackerS\t%s\tHealth: [%s]\tWeapon: %s\tArmor: %s\tArena: %s%n%n", player.getName(), player.printHealth(), player.playerWeapon.getName(), player.playerArmor.getName(), arena.state.getName());
 	}
 }
