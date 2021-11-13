@@ -16,6 +16,7 @@ public class Hackers {
 	private Scanner scnr;
 	private Player player;
 	private Arena arena;
+	private boolean evade;
 	
 	private static class Arena
 	{
@@ -64,7 +65,7 @@ public class Hackers {
 				
 				
 				enemies[i] = (new Enemy(Enemy.EnemyInfo.valueOf(random.nextInt(Enemy.EnemyInfo.values().length)), Enemy.EnemyWeapon.valueOf(random.nextInt(Enemy.EnemyWeapon.values().length))));
-				System.out.println("Info: " + enemies[i].state.values().length + " Weapons: " + enemies[i].weapon.values().length);
+				// System.out.println("Info: " + enemies[i].state.values().length + " Weapons: " + enemies[i].weapon.values().length);
 			}
 			
 			for (int i = 0; i < state.getOpponents() -1; i++){
@@ -78,9 +79,8 @@ public class Hackers {
 		                enemies[j + 1] = temp;
 		            }
 		            
-		            System.out.println(enemies[j].state.getValue());
+		            System.out.println("Enemy #1: " + enemies[j].weapon.getValue());
 		        }    
-		        System.out.println("err");
 		    }
 		}
 		
@@ -96,7 +96,7 @@ public class Hackers {
 		
 		private Enemy getEnemy()
 		{
-			System.out.println(enemyIndex);
+			// System.out.println(enemyIndex);
 			return enemies[enemyIndex];
 		}
 		
@@ -109,7 +109,7 @@ public class Hackers {
 		{
 			NONE(0, 0, 0, "No Arena Selected"),
 			HACKATHON(1, 1000, 2, "Hackathon"),
-			INTERVIEW(2, 1000, 2, "Coding Interview");
+			INTERVIEW(2, 2000, 4, "Coding Interview");
 			
 			private final int value;
 			private final int points;
@@ -263,7 +263,8 @@ public class Hackers {
 		
 		private enum EnemyInfo
 		{
-			STAN(0, "Stan", "Stan is a grad student.  He was forced to teach a course.  He makes you create a text entry coding project.  No IDE allowed.");
+			STAN(0, "Stan", "Stan is a grad student.  He was forced to teach a course.  He doesn't allow IDEs."),
+			PAT(1, "Dungeon Master Pratt", "Jacob is a grad student.  He was forced to host a hackathon.  He wants to go home and sleep.");
 			
 			private final int value;
 			private final String name;
@@ -313,6 +314,7 @@ public class Hackers {
 		
 		private static String name;
 		private int health;
+		private int points;
 		
 		public Player(String playerName)
 		{
@@ -324,7 +326,32 @@ public class Hackers {
 		
 		public boolean doDamage(Enemy enemy)
 		{
-			return enemy.damage(playerWeapon.getPower());
+			return enemy.damage(random.nextInt(playerWeapon.getPower() + 1));
+		}
+		
+		public boolean guard(int damage)
+		{
+			if(damage >= health + playerArmor.getPower()) return false;
+			//Return true if damage is possible (and do damage)
+			else {
+				int temp = random.nextInt(damage + 1);
+				if (temp - playerArmor.getPower() > 0) health -= (temp - playerArmor.getPower());
+				/*
+				health -= random.nextInt(damage + 1);
+				health += playerArmor.getPower();
+				*/
+				return true;
+			}
+		}
+		
+		public void addPoints(int points)
+		{
+			this.points += points;
+		}
+		
+		public int getScore()
+		{
+			return points;
 		}
 		
 		public String getName()
@@ -363,10 +390,25 @@ public class Hackers {
 			private final String name;
 			private final String description;
 			
+			private static Map map = new HashMap<>();
+			
 			PlayerWeapon(int power, String name, String description) {
 				this.power = power;
 				this.name = name;
 				this.description = description;
+			}
+			
+
+			
+			static {
+				for(PlayerWeapon playerWeapon : PlayerWeapon.values()) {
+					map.put(playerWeapon.power, playerWeapon);
+				}
+			}
+			
+			public static PlayerWeapon valueOf(int key)
+			{
+				return (PlayerWeapon) map.get(key);
 			}
 			
 			public int getPower()
@@ -394,9 +436,22 @@ public class Hackers {
 			private final int power;
 			private final String name;
 			
+			private static Map map = new HashMap<>();
+			
 			PlayerArmor(int power, String name) {
 				this.power = power;
 				this.name = name;
+			}
+			
+			static {
+				for(PlayerArmor playerArmor : PlayerArmor.values()) {
+					map.put(playerArmor.power, playerArmor);
+				}
+			}
+			
+			public static PlayerArmor valueOf(int key)
+			{
+				return (PlayerArmor) map.get(key);
 			}
 			
 			public int getPower()
@@ -428,6 +483,7 @@ public class Hackers {
 	{
 		scnr = new Scanner(System.in);
 		random = new Random();
+		evade = false;
 		startGame();
 	}
 	
@@ -447,6 +503,7 @@ public class Hackers {
 	
 	private void home()
 	{
+		player.health = HP;
 		printGameState();
 		printHome();
 		
@@ -467,6 +524,34 @@ public class Hackers {
 	private void shop()
 	{
 		printGameState();
+		printShop();
+		printActions(Page.SHOP);
+		
+		try {
+			switch(getInput().charAt(0))
+			{
+			case '1':
+				if(player.getScore() >= arena.state.valueOf(arena.state.getRank()).getPoints() && arena.state.valueOf(arena.state.getRank()).getPoints() > 0) {
+					player.playerWeapon = Player.PlayerWeapon.valueOf(player.playerWeapon.getPower() + 1);
+					player.points -= arena.state.valueOf(arena.state.getRank()).getPoints();
+				}
+				else errorMessage = "Cannot afford :'(  ";
+				break;
+			case '2':
+				if(player.getScore() >= arena.state.valueOf(arena.state.getRank()).getPoints() && arena.state.valueOf(arena.state.getRank()).getPoints() > 0) {
+					player.playerArmor = Player.PlayerArmor.valueOf(player.playerArmor.getPower() + 1);
+					player.points -= arena.state.valueOf(arena.state.getRank()).getPoints();
+				}
+				else errorMessage = "Cannot afford :'(\n";
+				break;
+			case '3':
+				home();
+				break;
+			}
+		} catch(Exception e) {
+			errorMessage = ("Command not understood. Try again.\n");
+		}
+		shop();
 	}
 	
 	private void mission()
@@ -506,15 +591,17 @@ public class Hackers {
 			{
 			case '1':
 				// Swing First
-				boolean doDamage = player.doDamage(arena.getEnemy());
-				if(!doDamage && arena.getEnemyIndex() >= arena.state.getOpponents())
+				boolean damageEnemy = player.doDamage(arena.getEnemy());
+				if(!damageEnemy && arena.getEnemyIndex() >= arena.state.getOpponents())
 					{
 					arena.enemyIndex--;
 					win();
 					}
-				else if (!doDamage) arena.enemyIndex++;
+				else if (!damageEnemy) arena.enemyIndex++;
 				// Swing back
-				
+				if(!evade) {
+					if(!player.guard(arena.getEnemy().weapon.getPower())) lose();
+				} else evade = false;
 				
 				break;
 			case '2':
@@ -532,12 +619,19 @@ public class Hackers {
 	
 	private void evade()
 	{
-		
+		if(random.nextBoolean()) evade = true;
+		else {
+			errorMessage = "Evade Failed!";
+			if(!player.guard(arena.getEnemy().weapon.getPower())) lose();
+		}
+		fight();
 	}
 	
 	private void run()
 	{
-		
+		System.out.printf("%s%n%nThanks for playing!%n%n%n%nPress return to continue.", printSpace());
+		String input = scnr.nextLine();
+		startGame();
 	}
 	
 	private void win()
@@ -545,6 +639,7 @@ public class Hackers {
 		System.out.printf("%s%n%nYou beat %s!%n%nTry again?%n%n%n%n", printSpace(), arena.getEnemy().state.getName());
 		// arena.enemyIndex = 0;
 		arena.arenaIndex++;
+		player.addPoints(arena.state.getPoints());
 		printActions(Page.WIN);
 		try {
 			switch(getInput().charAt(0))
@@ -573,17 +668,19 @@ public class Hackers {
 			switch(getInput().charAt(0))
 			{
 			case '1':
-				fight();
+				startGame();
 				break;
 			case '2':
-				evade();
+				run();
 				break;
 			case '3':
-				run();
+				player.health = HP;
+				fight();
+				break;
 			}
 		} catch(Exception e) {
 			errorMessage = ("Command not understood. Try again.\n");
-			win();
+			lose();
 		}
 	}
 	
@@ -617,10 +714,16 @@ public class Hackers {
 		{
 		case HOME:
 			return "(1) Start Next Arena\t(2) Shop";
+		case SHOP:
+			return "(1) Upgrade Weapon\t(2) Upgrade Armor\t(3) Return Home";
 		case MISSION:
 			return "(1) Fight\t(2) Evade\t(3) Run for your life!";
 		case FIGHT:
 			return "(1) " + player.playerWeapon.getAttack() + "\t(2) Evade\t(3) Run";
+		case WIN:
+			return "(1) Return Home\t(2) Call it a day";
+		case LOSE:
+			return "(1) Reset Game\t(2) Call it a day";
 		default:
 			return "No actions allowed.";
 		}
@@ -629,6 +732,11 @@ public class Hackers {
 	private void printActions(Page page)
 	{
 		System.out.printf("Actions\t\t%s%n", getAction(page));
+	}
+	
+	private void printShop()
+	{
+		System.out.printf("Shop\t\t%d Points\tArena Cost: %s Points%n%n%n%n%n%n%n", player.getScore(), arena.state.valueOf(arena.state.getRank()).getPoints());
 	}
 	
 	private void printHome()
