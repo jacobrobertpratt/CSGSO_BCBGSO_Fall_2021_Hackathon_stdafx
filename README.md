@@ -45,7 +45,9 @@ Claims he never saw the bee movie.
 
 ## Config
 
-**Download** Clone git repository to local drive.
+### See Instructions in [EXECUTE]()
+
+**Download** Clone git repository to local drive. 
 **Execute** Type in command in terminal or [Run Executable]()
 * **Windows:** Run executable or `HackerS.exe <command>` I think
 * **Mac OS:** `open HackerS.out` or `./HackerS.out` idk you choose
