@@ -31,6 +31,10 @@ _Failing to make the best project will result in your peril!_
 * Interactive Game
 * Ability to Adapt
 
+**Language**
+* Java
+* (Ran out of time to convert to C++)
+
 ## Humor
 ### Joke of the Day
 How long can I go without sleeping?
