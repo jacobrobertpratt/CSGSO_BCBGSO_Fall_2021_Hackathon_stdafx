@@ -35,7 +35,7 @@ _Failing to make the best project will result in your peril!_
 ### Joke of the Day
 How long can I go without sleeping?
 
-_**Update [5:00 AM]():** I need some sleep but it's not gonna happen_
+_**Update [6:00PM 11/13/21]():** Final Submission Posted.  Updating README.md.  I got maybe 2 hours of sleep during this entire thing._
 
 ### Cat of the Day
 ![cat](https://i.ytimg.com/vi/Zr-qM5Vrd0g/maxresdefault.jpg)
