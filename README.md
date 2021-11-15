@@ -6,6 +6,7 @@ _into a hackathon and must create the best project._
 _Failing to make the best project will result in your peril!_
 
 #### Categories
+* Dynamic Programming Solution
 * Single Player
 * Text-Based
 * Funny
@@ -27,7 +28,10 @@ _Failing to make the best project will result in your peril!_
    0 ≤ T ≤ 5,000
 ```
 **Specifications**
-* Algorithm for generating arenas
+* Framework Constructed from Scratch
+* Dynamic Algorithm for generating Arenas
+* Dynamic Algorithm for generating Enemies
+* Dynamic Algorithm for Searching Enemies
 * Interactive Game
 * Ability to Adapt
 
